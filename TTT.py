@@ -1,3 +1,5 @@
+# test
+
 import pygame
 from pygame.locals import (
     K_UP,
