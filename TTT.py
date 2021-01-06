@@ -1,3 +1,4 @@
+
 from game import *
 from grid import *
 import pygame
@@ -9,6 +10,7 @@ from pygame.locals import (
     K_ESCAPE,
     KEYDOWN,
     KEYUP,
+    K_p
     QUIT,
     MOUSEBUTTONDOWN,
     MOUSEBUTTONUP,
@@ -61,16 +63,13 @@ while running:
     if not running:
         pygame.quit()
         break
-
     if not hasGameStarted:
         home_screen()
         for event in event_list:
             if event.type == KEYUP:
                 hasGameStarted = True
-
     elif isGameOver:
         pass
-
     else:
         for event in event_list:
             if event.type == MOUSEBUTTONDOWN:
@@ -85,13 +84,11 @@ while running:
                         square.isFilled = whoseTurn
                         strategy[whoseTurn - 1].update(square)
                         whoseTurn = (whoseTurn % numPlayers) + 1
-
+            if (event.type == KEYDOWN and event.key == K_p):
+                for player in strategy:
+                    player.print_plays()
 
         screen.fill(WHITE)
         grid.draw()
 
     pygame.display.flip()
-
-for player in strategy:
-    for play in player.plays:
-        print(f"play = {play.play.coord}")
