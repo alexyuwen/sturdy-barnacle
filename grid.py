@@ -20,7 +20,7 @@ class Grid():
         self.marginSize = marginSize
         self.rightBound = self.marginSize + (self.colNb - 1) * self.cellSize
         self.bottomBound = self.marginSize + (self.rowNb - 1) * self.cellSize
-        self.grid = [[Square(self, i, j) for j in range(self.rowNb)] for i in range(self.colNb)] # i and j are column and row numbers, not the exact coordinates
+        self.grid = [[Square(self, j, i) for i in range(self.rowNb)] for j in range(self.colNb)] # i and j are column and row numbers, not the exact coordinates
         self.shapes = [set(), set()] # list of sets of tuples containing coordinates of top left corner of squares with shapes in them
 
     def draw(self):
@@ -43,10 +43,10 @@ class Grid():
             pygame.draw.circle(self.surface, BLUE, center, radius, thickness)
 
     def printGrid(self):
-        for row in self.grid:
-            for y in row:
+        for i in range(self.rowNb):
+            for j in range(self.colNb):
                 print("\t", end="")
-                self.grid[x][y].printSquare
+                self.grid[i][j].printSquare
 
 
 class Square():
