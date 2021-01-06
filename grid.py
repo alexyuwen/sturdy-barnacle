@@ -55,9 +55,6 @@ class Square():
         self.coord = (self.x * grid.cellSize + grid.marginSize, self.y * grid.cellSize + grid.marginSize)
         self.isFilled = 0 # 0 means unfilled, 1 means filled by Player 1, 2 means filled by Player 2, etc...
 
-    def isInRange(self, l, r):
-        return l.x <= self.x <= r.x and l.y <= self.y <= r.y
-
     def get_left(self):
         if self.x == 0:
             return None

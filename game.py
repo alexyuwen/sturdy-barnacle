@@ -72,7 +72,7 @@ class Player():
         """
         updates and sorts the list of plays
         """
-        self.plays = [p for p in self.plays if not square.isInRange(p.line[0], p.line[1])]
+        self.plays = [p for p in self.plays if not p.contains(square)]
         for state in self.getStates(square):
             plays = self.possible_plays(state)
             self.plays.extend(plays)
@@ -81,7 +81,7 @@ class Player():
     def print_plays(self):
         print(f"Player {self.pN}'s Plays:")
         for p in self.plays:
-            print(f"\tPlay(play={p.play.pos}, line={[sq.pos for sq in p.line]}, strength={p.strength}), direction={p.direction}")
+            print(f"\tPlay(play={p.play.pos}, line={[sq.pos for sq in p.line]}, strength={p.strength}), {p.direction}")
         print()
 
 class Play():
@@ -100,6 +100,17 @@ class Play():
             return "diagonal up"
         else:
             return "diagonal down"
+
+    def contains(self, square):
+        l, r = self.line
+        if self.direction == "horizontal":
+            return l.x <= square.x <= r.x and square.y == l.y
+        elif self.direction == "vertical":
+            return l.y >= square.y >= r.x and square.x == l.x
+        elif self.direction == "diagonal up":
+            return square.x - l.x == l.y - square.y
+        elif self.direction == "diagonal down":
+            return square.x - l.x == square.y - l.y
 
     def isEqual(self, other):
         return self.play == other.play and self.line == other.line
