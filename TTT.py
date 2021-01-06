@@ -1,6 +1,7 @@
 
 from game import *
 from grid import *
+from computer import *
 import pygame
 from pygame.locals import (
     K_UP,
@@ -18,14 +19,6 @@ from pygame.locals import (
     MOUSEBUTTONUP,
     MOUSEMOTION,
 )
-
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-PURPLE = (127, 0, 255)
-GREEN = (0, 153, 0)
-ORANGE = (255, 128, 0)
 
 pygame.init()
 pygame.font.init()
@@ -53,18 +46,18 @@ isGameOver = False
 while True:
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    grid = Grid(surface=screen, cellSize=24, marginSize=20)
+    grid = Grid(surface=screen, cellSize=50, marginSize=20)
     numPlayers = 2
     whoseTurn = 1
-    strategy = [Player(grid, numPlayers, playerNum) for playerNum in range(1, numPlayers + 1)]
-    SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 720
-    RIGHT_BOUNDARY, BOTTOM_BOUNDARY = grid.cellSize * ((SCREEN_WIDTH - 2 *  GRID_MARGIN_SIZE) // grid.cellSize), grid.marginSize + ((SCREEN_HEIGHT // grid.cellSize - 2) - 1) * grid.cellSize
+    comp = Computer(grid, numPlayers, numPlayers)
+    strategy = comp.strategy
     inSameGame = True
     while inSameGame:
         pygame.display.flip()
         event_list = pygame.event.get()
         for event in event_list:
             if (event.type == KEYDOWN and event.key == K_ESCAPE) or event.type == QUIT:
+                grid.printGrid()
                 pygame.quit()
                 exit()
         if not hasGameStarted:
@@ -87,7 +80,7 @@ while True:
             for event in event_list:
                 if event.type == MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
-                    if grid.marginSize < pos[0] < RIGHT_BOUNDARY and grid.marginSize < pos[1] < BOTTOM_BOUNDARY:
+                    if grid.marginSize < pos[0] < grid.rightBound and grid.marginSize < pos[1] < grid.bottomBound:
                         x = (pos[0] - grid.marginSize) // grid.cellSize
                         y = (pos[1] - grid.marginSize) // grid.cellSize
                         square = grid.grid[x][y]

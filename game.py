@@ -77,7 +77,19 @@ class Player():
         for state in self.getStates(square):
             plays = self.possible_plays(state)
             self.plays.extend(plays)
+        self.merge_pivots()
         self.sort_plays()
+
+    def merge_pivots(self):
+        i = 0
+        while i < len(self.plays):
+            for j in range(i + 1, len(self.plays)):
+                if self.plays[i].play == self.plays[j].play:
+                    self.plays[i] = Pivot(self.plays[i].play, self.plays[i].line, self.plays[j].line, 7)
+                    del self.plays[j]
+                    break
+            i += 1
+
 
     def print_plays(self):
         print(f"Player {self.pN}'s Plays:")
@@ -115,3 +127,11 @@ class Play():
 
     def isEqual(self, other):
         return self.play == other.play and self.line == other.line
+
+class Pivot(Play):
+    def __init__(self, play, line, line2, strength):
+        super().__init__(play, line, 7)
+        self.line2 = line2
+
+    def next_move(self):
+        pass

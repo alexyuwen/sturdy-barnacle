@@ -9,30 +9,27 @@ PURPLE = (127, 0, 255)
 GREEN = (0, 153, 0)
 ORANGE = (255, 128, 0)
 
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 720
-CELL_SIZE = 24
-GRID_MARGIN_SIZE = 20 # size of left and upper margins
-RIGHT_BOUNDARY = CELL_SIZE * ((SCREEN_WIDTH - 2 *  GRID_MARGIN_SIZE) // CELL_SIZE)
-BOTTOM_BOUNDARY = GRID_MARGIN_SIZE + ((SCREEN_HEIGHT // CELL_SIZE - 2) - 1) * CELL_SIZE
+SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 720
 
 class Grid():
     def __init__(self, surface, cellSize, marginSize):
         self.surface = surface
-        self.colNb = (surface.get_width() - 2 *  GRID_MARGIN_SIZE) // cellSize
+        self.colNb = surface.get_width() // cellSize - 2
         self.rowNb = surface.get_height() // cellSize - 2
         self.cellSize = cellSize
         self.marginSize = marginSize
+        self.rightBound = self.marginSize + (self.colNb - 1) * self.cellSize
+        self.bottomBound = self.marginSize + (self.rowNb - 1) * self.cellSize
         self.grid = [[Square(self, i, j) for j in range(self.rowNb)] for i in range(self.colNb)] # i and j are column and row numbers, not the exact coordinates
         self.shapes = [set(), set()] # list of sets of tuples containing coordinates of top left corner of squares with shapes in them
 
     def draw(self):
         for li in range(self.rowNb):
             liCoord = self.marginSize + li * self.cellSize
-            pygame.draw.line(self.surface, BLACK, (self.marginSize, liCoord), (RIGHT_BOUNDARY, liCoord))
+            pygame.draw.line(self.surface, BLACK, (self.marginSize, liCoord), (self.rightBound, liCoord))
         for co in range(self.colNb):
             colCoord = self.marginSize + co * self.cellSize
-            pygame.draw.line(self.surface, BLACK, (colCoord, self.marginSize), (colCoord, BOTTOM_BOUNDARY))
+            pygame.draw.line(self.surface, BLACK, (colCoord, self.marginSize), (colCoord, self.bottomBound))
 
         thickness = 2
         crossMargin = self.cellSize // 5
@@ -45,6 +42,12 @@ class Grid():
             center = (xp + self.cellSize / 2, yp + self.cellSize / 2)
             pygame.draw.circle(self.surface, BLUE, center, radius, thickness)
 
+    def printGrid(self):
+        for row in self.grid:
+            for y in row:
+                print("\t", end="")
+                self.grid[x][y].printSquare
+
 
 class Square():
     def __init__(self, grid, x, y): # x and y are the column and row numbers, not the exact coordinates
@@ -54,6 +57,9 @@ class Square():
         self.pos = (x, y)
         self.coord = (self.x * grid.cellSize + grid.marginSize, self.y * grid.cellSize + grid.marginSize)
         self.isFilled = 0 # 0 means unfilled, 1 means filled by Player 1, 2 means filled by Player 2, etc...
+
+    def printSquare(self):
+        print(f"Square({self.pos}, isFilled={self.isFilled})")
 
     def get_left(self):
         if self.x == 0:
