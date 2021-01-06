@@ -14,13 +14,13 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 720
 class Grid():
     def __init__(self, surface, cellSize, marginSize):
         self.surface = surface
-        self.colNb = surface.get_width() // cellSize - 2
-        self.rowNb = surface.get_height() // cellSize - 2
+        self.colNb = SCREEN_WIDTH // cellSize - 2
+        self.rowNb = SCREEN_HEIGHT // cellSize - 2
         self.cellSize = cellSize
         self.marginSize = marginSize
         self.rightBound = self.marginSize + (self.colNb - 1) * self.cellSize
         self.bottomBound = self.marginSize + (self.rowNb - 1) * self.cellSize
-        self.grid = [[Square(self, j, i) for i in range(self.rowNb)] for j in range(self.colNb)] # i and j are column and row numbers, not the exact coordinates
+        self.grid = [[Square(self, i, j) for j in range(self.rowNb)] for i in range(self.colNb)] # i and j are column and row numbers, not the exact coordinates
         self.shapes = [set(), set()] # list of sets of tuples containing coordinates of top left corner of squares with shapes in them
 
     def draw(self):
@@ -43,10 +43,11 @@ class Grid():
             pygame.draw.circle(self.surface, BLUE, center, radius, thickness)
 
     def printGrid(self):
-        for i in range(self.rowNb):
-            for j in range(self.colNb):
+        for a in self.grid:
+            for b in a:
                 print("\t", end="")
-                self.grid[i][j].printSquare
+                b.printSquare()
+            print("--------------------------------------------------------------------")
 
 
 class Square():
