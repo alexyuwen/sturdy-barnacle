@@ -8,9 +8,13 @@ class Player():
     def __init__(self, grid, numPlayers, pN):
         self.grid = grid
         self.pN = pN # player number
-        self.plays = [] # Each player's opportunities for offensive attacks
-        self.combos = {"closed3": [(fr'[^01]{pN}{{3}}00', 4), (fr'[^01]{pN}{pN}0{pN}0', 3), (fr'[^01]{pN}{pN}00{pN}', 3), (fr'[^01]{pN}0{pN}0{pN}', 2), (fr'[^01]{pN}0{pN}0{pN}', 4), (fr'[^01]{pN}0{pN}{pN}0', 2), (fr'[^01]{pN}0{pN}{pN}0', 5),
-                                   (fr'00{pN}{{3}}[^01]', 1), (fr'0{pN}0{pN}{pN}[^01]', 2), (fr'{pN}00{pN}{pN}[^01]', 2), (fr'{pN}0{pN}0{pN}[^01]', 3), (fr'{pN}0{pN}0{pN}[^01]', 1), (fr'0{pN}{pN}0{pN}[^01]', 3), (fr'0{pN}{pN}0{pN}[^01]', 0)],
+        self.plays = [] # Each player's opportunities for offensive attacks: a list of Play objects
+        self.combos = {"closed4": [(fr'[^0{pN}]{pN}{{4}}0', 5), (fr'[^0{pN}]{pN}{{3}}0{pN}', 4), (fr'[^0{pN}]{pN}{pN}0{pN}{pN}', 3), (fr'[^0{pN}]{pN}0{pN}{{3}}', 2), (fr'[^0{pN}]0{pN}{{4}}', 1)],
+                       "semiopen3": [(fr'0{pN}0{pN}{pN}0', 2), (fr'0{pN}{pN}0{pN}0', 3)],
+                       "open3": [(fr'0{pN}{{3}}0', 0), (fr'0{pN}{{3}}0', 4)],
+                       "closed3": [(fr'[^0{pN}]{pN}{{3}}00', 4), (fr'[^0{pN}]{pN}{pN}0{pN}0', 3), (fr'[^0{pN}]{pN}{pN}00{pN}', 3), (fr'[^0{pN}]{pN}0{pN}0{pN}', 2), (fr'[^0{pN}]{pN}0{pN}0{pN}', 4), (fr'[^0{pN}]{pN}0{pN}{pN}0', 2), (fr'[^0{pN}]{pN}0{pN}{pN}0', 5),
+                                   (fr'00{pN}{{3}}[^0{pN}]', 1), (fr'0{pN}0{pN}{pN}[^0{pN}]', 2), (fr'{pN}00{pN}{pN}[^0{pN}]', 2), (fr'{pN}0{pN}0{pN}[^0{pN}]', 3), (fr'{pN}0{pN}0{pN}[^0{pN}]', 1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 3), (fr'0{pN}{pN}0{pN}[^0{pN}]', 0),
+                                   (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 5), (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 1)],
                        "semiopen2": [(fr'0{pN}0{pN}0', 2)],
                        "open2": [(fr'0{pN}{pN}00', 3), (fr'00{pN}{pN}0', 1)],} # Dict[str, List[(str, int)]]
 
@@ -55,7 +59,7 @@ class Player():
         """
         plays = []
         state_as_str = "".join(str(sq.isFilled) for sq in state)
-        strength = 3
+        strength = 6
         for attack_type, combos in self.combos.items():
             for reg, i in combos:
                 for match in re.finditer(reg, state_as_str):
@@ -68,13 +72,10 @@ class Player():
         """
         updates and sorts the list of plays
         """
+        self.plays = [p for p in self.plays if not square.isInRange(p.line[0], p.line[1])]
         for state in self.getStates(square):
             plays = self.possible_plays(state)
-            for p1 in plays:
-                for p2 in self.plays:
-                    if p1.isEqual(p2):
-                        break
-                self.plays.append(p1)
+            self.plays.extend(plays)
         self.sort_plays()
 
     def print_plays(self):
@@ -91,11 +92,11 @@ class Play():
         self.direction = self.__getDirection()
 
     def __getDirection(self):
-        if self.play.y == self.line[0].y:
+        if self.line[0].y == self.line[1].y:
             return "horizontal"
-        elif self.play.x == self.line[0].x:
+        elif self.line[0].x == self.line[1].x:
             return "vertical"
-        elif self.play.y > self.line[0].y:
+        elif self.line[0].y > self.line[1].y:
             return "diagonal up"
         else:
             return "diagonal down"

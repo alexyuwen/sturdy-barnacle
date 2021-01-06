@@ -10,7 +10,7 @@ from pygame.locals import (
     K_ESCAPE,
     KEYDOWN,
     KEYUP,
-    K_p
+    K_p,
     QUIT,
     MOUSEBUTTONDOWN,
     MOUSEBUTTONUP,
@@ -82,7 +82,8 @@ while running:
                         coord = (x * grid.cellSize + grid.marginSize, y * grid.cellSize + grid.marginSize)
                         grid.shapes[whoseTurn - 1].add(coord)
                         square.isFilled = whoseTurn
-                        strategy[whoseTurn - 1].update(square)
+                        for player in strategy:
+                            player.update(square)
                         whoseTurn = (whoseTurn % numPlayers) + 1
             if (event.type == KEYDOWN and event.key == K_p):
                 for player in strategy:
