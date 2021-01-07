@@ -1,4 +1,5 @@
 
+import pdb
 from game import *
 from grid import *
 from computer import *
@@ -46,7 +47,7 @@ isGameOver = False
 while True:
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    grid = Grid(surface=screen, cellSize=50, marginSize=20)
+    grid = Grid(surface=screen, cellSize=32, marginSize=20)
     numPlayers = 2
     whoseTurn = 1
     comp = Computer(grid, numPlayers, numPlayers)
@@ -91,12 +92,16 @@ while True:
                             for player in strategy:
                                 player.update(square)
                                 if player.plays and player.plays[0].strength == 7:
+                                    print("GAME OVER: ", end="")
+                                    player.plays[0].printPlay()
                                     isGameOver = True
                                     break
                             whoseTurn = (whoseTurn % numPlayers) + 1
                 if (event.type == KEYDOWN and event.key == K_p):
-                    for player in strategy:
-                        player.print_plays()
+                    comp.print_plays()
 
             screen.fill(WHITE)
             grid.draw()
+
+comp.print_plays()
+grid.printGrid()

@@ -43,12 +43,7 @@ class Grid():
             pygame.draw.circle(self.surface, BLUE, center, radius, thickness)
 
     def printGrid(self):
-        for a in self.grid:
-            for b in a:
-                print("\t", end="")
-                b.printSquare()
-            print("--------------------------------------------------------------------")
-
+        print('\n'.join([''.join([f"{self.grid[x][y].isFilled:4}" for x in range(self.colNb)]) for y in range(self.rowNb)]))
 
 class Square():
     def __init__(self, grid, x, y): # x and y are the column and row numbers, not the exact coordinates

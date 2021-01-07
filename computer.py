@@ -10,3 +10,7 @@ class Computer():
 
     def next_move(self):
         pass
+
+    def print_plays(self):
+        for player in self.strategy:
+            player.print_plays()

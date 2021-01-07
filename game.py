@@ -2,6 +2,7 @@
 from grid import *
 from collections import deque
 import re
+import pdb
 
 class Player():
 
@@ -24,7 +25,7 @@ class Player():
 
     def getStates(self, square):
         """
-        returns list of 4 lists of strings representing the states in all 4 directions
+        returns list of 4 lists representing the states in all 4 directions
         """
         funcs = ((Square.get_left, Square.get_right),
                  (Square.get_below, Square.get_above),
@@ -35,7 +36,7 @@ class Player():
             state = deque([square])
             open, closed = 0, 0
             curr = f1(square)
-            while open <= 3 and closed <= 1 and curr:
+            while open < 3 and closed < 1 and curr:
                 state.appendleft(curr)
                 if curr.isFilled == 0:
                     open += 1
@@ -44,7 +45,7 @@ class Player():
                 curr = f1(curr)
             open, closed = 0, 0
             curr = f2(square)
-            while open <= 3 and closed <= 1 and curr:
+            while open < 3 and closed < 1 and curr:
                 state.append(curr)
                 if curr.isFilled == 0:
                     open += 1
@@ -74,10 +75,12 @@ class Player():
         updates and sorts the list of plays
         """
         self.plays = [p for p in self.plays if not p.contains(square)]
-        for state in self.getStates(square):
+        states = self.getStates(square)
+        state_as_str = ["".join(str(sq.isFilled) for sq in state) for state in states]
+        for state in states:
             plays = self.possible_plays(state)
             self.plays.extend(plays)
-        self.merge_pivots()
+        # self.merge_pivots()
         self.sort_plays()
 
     def merge_pivots(self):
@@ -94,13 +97,13 @@ class Player():
     def print_plays(self):
         print(f"Player {self.pN}'s Plays:")
         for p in self.plays:
-            print(f"\tPlay(play={p.play.pos}, line={[sq.pos for sq in p.line]}, strength={p.strength}), {p.direction}")
+            p.printPlay()
         print()
 
 class Play():
     def __init__(self, play, line, strength):
         self.play = play
-        self.line = line # tuple of 2 squares - the beginning and end of the line, inclusive
+        self.line = line # tuple of 2 Squares - the beginning and end of the line, inclusive
         self.strength = strength
         self.direction = self.__getDirection()
 
@@ -127,6 +130,9 @@ class Play():
 
     def isEqual(self, other):
         return self.play == other.play and self.line == other.line
+
+    def printPlay(self):
+        print(f"\tPlay(play={self.play.pos}, line={[sq.pos for sq in self.line]}, strength={self.strength}), {self.direction}")
 
 class Pivot(Play):
     def __init__(self, play, line, line2, strength):
