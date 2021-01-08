@@ -10,7 +10,7 @@ class Player():
         self.grid = grid
         self.pN = pN # player number
         self.plays = [] # Each player's opportunities for offensive attacks: a list of Play objects
-        self.combos = {"straight5": [(fr'{pN}{{5}}', 0)],
+        self.combos = {"straight5": [(fr'{pN}{{5}}', -1)],
                        "closed4": [(fr'[^0{pN}]{pN}{{4}}0', 5), (fr'[^0{pN}]{pN}{{3}}0{pN}', 4), (fr'[^0{pN}]{pN}{pN}0{pN}{pN}', 3), (fr'[^0{pN}]{pN}0{pN}{{3}}', 2), (fr'[^0{pN}]0{pN}{{4}}', 1)],
                        "semiopen3": [(fr'0{pN}0{pN}{pN}0', 2), (fr'0{pN}{pN}0{pN}0', 3)],
                        "open3": [(fr'0{pN}{{3}}0', 0), (fr'0{pN}{{3}}0', 4)],
@@ -62,7 +62,7 @@ class Player():
         plays = []
         state_as_str = "".join(str(sq.isFilled) for sq in state)
         strength = 7
-        for attack_type, combos in self.combos.items():
+        for combos in self.combos.values():
             for reg, i in combos:
                 for match in re.finditer(reg, state_as_str):
                     start, end = match.start(0), match.end(0)
@@ -80,19 +80,17 @@ class Player():
         for state in states:
             plays = self.possible_plays(state)
             self.plays.extend(plays)
-        # self.merge_pivots()
+        self.merge_pivots()
         self.sort_plays()
 
-    def merge_pivots(self):
-        i = 0
-        while i < len(self.plays):
-            for j in range(i + 1, len(self.plays)):
-                if self.plays[i].play == self.plays[j].play:
-                    self.plays[i] = Pivot(self.plays[i].play, self.plays[i].line, self.plays[j].line, 7)
-                    del self.plays[j]
-                    break
-            i += 1
-
+    def merge_pivots(self): # Do I need to handle pivots of 3+ lines?
+        temp = {}
+        for i, p in enumerate(self.plays):
+            if p in temp:
+                self.plays[temp[p]] = Pivot(self.plays[i].play, self.plays[i].line, self.plays[temp[p]].line, 7)
+                del self.plays[i]
+            else:
+                temp[p.play] = i
 
     def print_plays(self):
         print(f"Player {self.pN}'s Plays:")

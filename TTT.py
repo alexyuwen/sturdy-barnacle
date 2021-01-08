@@ -13,6 +13,7 @@ from pygame.locals import (
     K_SPACE,
     KEYDOWN,
     KEYUP,
+    K_g,
     K_h,
     K_p,
     QUIT,
@@ -47,7 +48,7 @@ isGameOver = False
 while True:
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    grid = Grid(surface=screen, cellSize=32, marginSize=20)
+    grid = Grid(surface=screen, cellSize=60, marginSize=20)
     numPlayers = 2
     whoseTurn = 1
     comp = Computer(grid, numPlayers, numPlayers)
@@ -90,15 +91,21 @@ while True:
                             grid.shapes[whoseTurn - 1].add(coord)
                             square.isFilled = whoseTurn
                             for player in strategy:
+                                print(["".join(str(sq.isFilled) for sq in state) for state in player.getStates(square)], end="\n") # DEBUGGING LINE
                                 player.update(square)
                                 if player.plays and player.plays[0].strength == 7:
                                     print("GAME OVER: ", end="")
                                     player.plays[0].printPlay()
                                     isGameOver = True
                                     break
+                            print()
                             whoseTurn = (whoseTurn % numPlayers) + 1
-                if (event.type == KEYDOWN and event.key == K_p):
-                    comp.print_plays()
+                # FOR DEBUGGING
+                if event.type == KEYDOWN:
+                    if event.key == K_p:
+                        comp.print_plays()
+                    if event.key == K_g:
+                        grid.printGrid()
 
             screen.fill(WHITE)
             grid.draw()
