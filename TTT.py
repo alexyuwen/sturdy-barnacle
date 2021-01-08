@@ -48,7 +48,7 @@ isGameOver = False
 while True:
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    grid = Grid(surface=screen, cellSize=60, marginSize=20)
+    grid = Grid(surface=screen, cellSize=30, marginSize=20)
     numPlayers = 2
     whoseTurn = 1
     comp = Computer(grid, numPlayers, numPlayers)

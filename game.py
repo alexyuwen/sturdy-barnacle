@@ -11,13 +11,14 @@ class Player():
         self.pN = pN # player number
         self.plays = [] # Each player's opportunities for offensive attacks: a list of Play objects
         self.combos = {"straight5": [(fr'{pN}{{5}}', -1)],
-                       "closed4": [(fr'[^0{pN}]{pN}{{4}}0', 5), (fr'[^0{pN}]{pN}{{3}}0{pN}', 4), (fr'[^0{pN}]{pN}{pN}0{pN}{pN}', 3), (fr'[^0{pN}]{pN}0{pN}{{3}}', 2), (fr'[^0{pN}]0{pN}{{4}}', 1)],
+                       "closed4": [(fr'[^0{pN}]{pN}{{4}}0', 5), (fr'[^0{pN}]{pN}{{3}}0{pN}', 4), (fr'[^0{pN}]{pN}{pN}0{pN}{pN}', 3), (fr'[^0{pN}]{pN}0{pN}{{3}}', 2), (fr'[^0{pN}]0{pN}{{4}}', 1),
+                                   (fr'0{pN}{{4}}[^0{pN}]', 0), (fr'{pN}0{pN}{{3}}[^0{pN}]', 1), (fr'{pN}{pN}0{pN}{pN}[^0{pN}]', 2), (fr'{pN}{{3}}0{pN}[^0{pN}]', 3), (fr'{pN}{{4}}0[^0{pN}]', 4)],
                        "semiopen3": [(fr'0{pN}0{pN}{pN}0', 2), (fr'0{pN}{pN}0{pN}0', 3)],
                        "open3": [(fr'0{pN}{{3}}0', 0), (fr'0{pN}{{3}}0', 4)],
                        "closed3": [(fr'[^0{pN}]{pN}{{3}}00', 4), (fr'[^0{pN}]{pN}{pN}0{pN}0', 3), (fr'[^0{pN}]{pN}{pN}00{pN}', 3), (fr'[^0{pN}]{pN}0{pN}0{pN}', 2), (fr'[^0{pN}]{pN}0{pN}0{pN}', 4), (fr'[^0{pN}]{pN}0{pN}{pN}0', 2), (fr'[^0{pN}]{pN}0{pN}{pN}0', 5),
                                    (fr'00{pN}{{3}}[^0{pN}]', 1), (fr'0{pN}0{pN}{pN}[^0{pN}]', 2), (fr'{pN}00{pN}{pN}[^0{pN}]', 2), (fr'{pN}0{pN}0{pN}[^0{pN}]', 3), (fr'{pN}0{pN}0{pN}[^0{pN}]', 1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 3), (fr'0{pN}{pN}0{pN}[^0{pN}]', 0),
                                    (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 5), (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 1)],
-                       "semiopen2": [(fr'0{pN}0{pN}0', 2)],
+                       "semiopen2": [(fr'0{pN}0{pN}0', 2), (fr'0{pN}00{pN}0', 2)],
                        "open2": [(fr'0{pN}{pN}00', 3), (fr'00{pN}{pN}0', 1)],} # Dict[str, List[(str, int)]]
 
     def sort_plays(self):
@@ -25,7 +26,7 @@ class Player():
 
     def getStates(self, square):
         """
-        returns list of 4 lists representing the states in all 4 directions
+        returns list of 4 lists representing the states in all 4 directions around a given square
         """
         funcs = ((Square.get_left, Square.get_right),
                  (Square.get_below, Square.get_above),
@@ -66,7 +67,9 @@ class Player():
             for reg, i in combos:
                 for match in re.finditer(reg, state_as_str):
                     start, end = match.start(0), match.end(0)
-                    plays.append(Play(state[start + i], (state[start], state[end-1]), strength))
+                    play = Play(state[start + i], (state[start], state[end-1]), strength)
+                    if not any(play.isEqual(p) for p in self.plays):
+                        plays.append(play)
             strength -= 1
         return plays
 
@@ -86,8 +89,8 @@ class Player():
     def merge_pivots(self): # Do I need to handle pivots of 3+ lines?
         temp = {}
         for i, p in enumerate(self.plays):
-            if p in temp:
-                self.plays[temp[p]] = Pivot(self.plays[i].play, self.plays[i].line, self.plays[temp[p]].line, 7)
+            if p.play in temp:
+                self.plays[temp[p.play]] = Pivot(self.plays[i].play, self.plays[i].line, self.plays[temp[p.play]].line, 6)
                 del self.plays[i]
             else:
                 temp[p.play] = i
@@ -134,8 +137,11 @@ class Play():
 
 class Pivot(Play):
     def __init__(self, play, line, line2, strength):
-        super().__init__(play, line, 7)
+        super().__init__(play, line, 6)
         self.line2 = line2
 
     def next_move(self):
         pass
+
+    def printPlay(self):
+        print(f"\tPivot(play={self.play.pos}, lines={[sq.pos for sq in self.line]}, {[sq.pos for sq in self.line2]}, strength={self.strength}), {self.direction}")
