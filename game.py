@@ -10,16 +10,16 @@ class Player():
         self.grid = grid
         self.pN = pN # player number
         self.plays = [] # Each player's opportunities for offensive attacks: a list of Play objects
-        self.combos = {"straight5": [(fr'{pN}{{5}}', -1)],
-                       "closed4": [(fr'[^0{pN}]{pN}{{4}}0', 5), (fr'[^0{pN}]{pN}{{3}}0{pN}', 4), (fr'[^0{pN}]{pN}{pN}0{pN}{pN}', 3), (fr'[^0{pN}]{pN}0{pN}{{3}}', 2), (fr'[^0{pN}]0{pN}{{4}}', 1),
-                                   (fr'0{pN}{{4}}[^0{pN}]', 0), (fr'{pN}0{pN}{{3}}[^0{pN}]', 1), (fr'{pN}{pN}0{pN}{pN}[^0{pN}]', 2), (fr'{pN}{{3}}0{pN}[^0{pN}]', 3), (fr'{pN}{{4}}0[^0{pN}]', 4)],
-                       "semiopen3": [(fr'0{pN}0{pN}{pN}0', 2), (fr'0{pN}{pN}0{pN}0', 3)],
-                       "open3": [(fr'0{pN}{{3}}0', 0), (fr'0{pN}{{3}}0', 4)],
-                       "closed3": [(fr'[^0{pN}]{pN}{{3}}00', 4), (fr'[^0{pN}]{pN}{pN}0{pN}0', 3), (fr'[^0{pN}]{pN}{pN}00{pN}', 3), (fr'[^0{pN}]{pN}0{pN}0{pN}', 2), (fr'[^0{pN}]{pN}0{pN}0{pN}', 4), (fr'[^0{pN}]{pN}0{pN}{pN}0', 2), (fr'[^0{pN}]{pN}0{pN}{pN}0', 5),
-                                   (fr'00{pN}{{3}}[^0{pN}]', 1), (fr'0{pN}0{pN}{pN}[^0{pN}]', 2), (fr'{pN}00{pN}{pN}[^0{pN}]', 2), (fr'{pN}0{pN}0{pN}[^0{pN}]', 3), (fr'{pN}0{pN}0{pN}[^0{pN}]', 1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 3), (fr'0{pN}{pN}0{pN}[^0{pN}]', 0),
-                                   (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 5), (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 1)],
-                       "semiopen2": [(fr'0{pN}0{pN}0', 2), (fr'0{pN}00{pN}0', 2)],
-                       "open2": [(fr'0{pN}{pN}00', 3), (fr'00{pN}{pN}0', 1)],} # Dict[str, List[(str, int)]]
+        self.combos = {"straight5": [(fr'{pN}{{5}}', -1, 0, 0)],
+                       "closed4": [(fr'[^0{pN}]{pN}{{4}}0', 5, 1, 0), (fr'[^0{pN}]{pN}{{3}}0{pN}', 4, 1, 0), (fr'[^0{pN}]{pN}{pN}0{pN}{pN}', 3, 1, 0), (fr'[^0{pN}]{pN}0{pN}{{3}}', 2, 1, 0), (fr'[^0{pN}]0{pN}{{4}}', 1, 1, 0),
+                                   (fr'0{pN}{{4}}[^0{pN}]', 0, 0, -1), (fr'{pN}0{pN}{{3}}[^0{pN}]', 1, 0, -1), (fr'{pN}{pN}0{pN}{pN}[^0{pN}]', 2, 0, -1), (fr'{pN}{{3}}0{pN}[^0{pN}]', 3, 0, -1), (fr'{pN}{{4}}0[^0{pN}]', 4, 0, -1)],
+                       "semiopen3": [(fr'0{pN}0{pN}{pN}0', 2, 0, -1), (fr'0{pN}{pN}0{pN}0', 3, 0, -1)],
+                       "open3": [(fr'0{pN}{{3}}0', 0, 0, 0), (fr'0{pN}{{3}}0', 4, 0, 0)],
+                       "closed3": [(fr'[^0{pN}]{pN}{{3}}00', 4, 0, 0), (fr'[^0{pN}]{pN}{pN}0{pN}0', 3, 1, 0), (fr'[^0{pN}]{pN}{pN}00{pN}', 3, 1, 0), (fr'[^0{pN}]{pN}0{pN}0{pN}', 2, 1, 0), (fr'[^0{pN}]{pN}0{pN}0{pN}', 4, 1, 0), (fr'[^0{pN}]{pN}0{pN}{pN}0', 2, 1, 0), (fr'[^0{pN}]{pN}0{pN}{pN}0', 5, 1, 0),
+                                   (fr'00{pN}{{3}}[^0{pN}]', 1, 0, -1), (fr'0{pN}0{pN}{pN}[^0{pN}]', 2, 0, -1), (fr'{pN}00{pN}{pN}[^0{pN}]', 2, 0, -1), (fr'{pN}0{pN}0{pN}[^0{pN}]', 3, 0, -1), (fr'{pN}0{pN}0{pN}[^0{pN}]', 1, 0, -1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 3, 0, -1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 0, 0, -1),
+                                   (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 5, 1, -1), (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 1, 1, -1)],
+                       "semiopen2": [(fr'0{pN}0{pN}0', 2, 0, 0), (fr'0{pN}00{pN}0', 2, 0, 0)],
+                       "open2": [(fr'0{pN}{pN}00', 3, 0, 0), (fr'00{pN}{pN}0', 1, 0, 0)],} # Dict[str, List[(str, int)]]
 
     def sort_plays(self):
         self.plays.sort(key=lambda p : p.strength, reverse=True)
@@ -64,11 +64,14 @@ class Player():
         state_as_str = "".join(str(sq.isFilled) for sq in state)
         strength = 7
         for combos in self.combos.values():
-            for reg, i in combos:
+            for reg, i, l, r in combos: # i is the index of the play, l is the index of the first square in the line, and r is a negative index of the first square after the line's end
                 for match in re.finditer(reg, state_as_str):
                     start, end = match.start(0), match.end(0)
-                    play = Play(state[start + i], (state[start], state[end-1]), strength)
+                    play = Play(state[start + i], (state[start+l], state[end-1+r]), strength)
                     if not any(play.isEqual(p) for p in self.plays):
+                        #DEBUGGING CODE
+                        if end-1+r - (start+l) > 4: # line should be 5 and only 5 squares
+                            pdb.set_trace()
                         plays.append(play)
             strength -= 1
         return plays
@@ -89,11 +92,12 @@ class Player():
     def merge_pivots(self): # Do I need to handle pivots of 3+ lines?
         temp = {}
         for i, p in enumerate(self.plays):
-            if p.play in temp:
-                self.plays[temp[p.play]] = Pivot(self.plays[i].play, self.plays[i].line, self.plays[temp[p.play]].line, 6)
+            if p.play in temp and temp[p.play][1] != p.direction:
+                q = temp[p.play][0]
+                self.plays[q] = Pivot(self.plays[i].play, self.plays[i].line, self.plays[q].line, 6)
                 del self.plays[i]
             else:
-                temp[p.play] = i
+                temp[p.play] = i, p.direction
 
     def print_plays(self):
         print(f"Player {self.pN}'s Plays:")
