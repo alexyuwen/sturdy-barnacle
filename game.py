@@ -15,10 +15,10 @@ class Player():
                                    (fr'0{pN}{{4}}[^0{pN}]', 0, 0, -1), (fr'{pN}0{pN}{{3}}[^0{pN}]', 1, 0, -1), (fr'{pN}{pN}0{pN}{pN}[^0{pN}]', 2, 0, -1), (fr'{pN}{{3}}0{pN}[^0{pN}]', 3, 0, -1), (fr'{pN}{{4}}0[^0{pN}]', 4, 0, -1)],
                        "semiopen3": [(fr'0{pN}0{pN}{pN}0', 2, 0, -1), (fr'0{pN}{pN}0{pN}0', 3, 0, -1)],
                        "open3": [(fr'0{pN}{{3}}0', 0, 0, 0), (fr'0{pN}{{3}}0', 4, 0, 0)],
-                       "closed3": [(fr'[^0{pN}]{pN}{{3}}00', 4, 0, 0), (fr'[^0{pN}]{pN}{pN}0{pN}0', 3, 1, 0), (fr'[^0{pN}]{pN}{pN}00{pN}', 3, 1, 0), (fr'[^0{pN}]{pN}0{pN}0{pN}', 2, 1, 0), (fr'[^0{pN}]{pN}0{pN}0{pN}', 4, 1, 0), (fr'[^0{pN}]{pN}0{pN}{pN}0', 2, 1, 0), (fr'[^0{pN}]{pN}0{pN}{pN}0', 5, 1, 0),
+                       "closed3": [(fr'[^0{pN}]{pN}{{3}}00', 4, 1, 0), (fr'[^0{pN}]{pN}{pN}0{pN}0', 3, 1, 0), (fr'[^0{pN}]{pN}{pN}00{pN}', 3, 1, 0), (fr'[^0{pN}]{pN}0{pN}0{pN}', 2, 1, 0), (fr'[^0{pN}]{pN}0{pN}0{pN}', 4, 1, 0), (fr'[^0{pN}]{pN}0{pN}{pN}0', 2, 1, 0), (fr'[^0{pN}]{pN}0{pN}{pN}0', 5, 1, 0),
                                    (fr'00{pN}{{3}}[^0{pN}]', 1, 0, -1), (fr'0{pN}0{pN}{pN}[^0{pN}]', 2, 0, -1), (fr'{pN}00{pN}{pN}[^0{pN}]', 2, 0, -1), (fr'{pN}0{pN}0{pN}[^0{pN}]', 3, 0, -1), (fr'{pN}0{pN}0{pN}[^0{pN}]', 1, 0, -1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 3, 0, -1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 0, 0, -1),
                                    (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 5, 1, -1), (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 1, 1, -1)],
-                       "semiopen2": [(fr'0{pN}0{pN}0', 2, 0, 0), (fr'0{pN}00{pN}0', 2, 0, 0)],
+                       "semiopen2": [(fr'0{pN}0{pN}0', 2, 0, 0), (fr'0{pN}00{pN}0', 2, 1, 0)],
                        "open2": [(fr'0{pN}{pN}00', 3, 0, 0), (fr'00{pN}{pN}0', 1, 0, 0)],} # Dict[str, List[(str, int)]]
 
     def sort_plays(self):
@@ -70,6 +70,9 @@ class Player():
                     play = Play(state[start + i], (state[start+l], state[end-1+r]), strength)
                     if not any(play.isEqual(p) for p in self.plays):
                         #DEBUGGING CODE
+                        l1, l2 = [sq.pos for sq in (state[start+l], state[end-1+r])]
+                        if l1[0] - l2[0] not in (-4, 4) and l1[1] - l2[1] not in (-4, 4):
+                            pdb.set_trace()
                         if end-1+r - (start+l) > 4: # line should be 5 and only 5 squares
                             pdb.set_trace()
                         plays.append(play)
@@ -124,10 +127,11 @@ class Play():
 
     def contains(self, square):
         l, r = self.line
+        # 1 extra square in each direction checked
         if self.direction == "horizontal":
-            return l.x <= square.x <= r.x and square.y == l.y
+            return l.x - 1 <= square.x <= r.x + 1 and square.y == l.y
         elif self.direction == "vertical":
-            return l.y >= square.y >= r.x and square.x == l.x
+            return l.y + 1 >= square.y >= r.x - 1 and square.x == l.x
         elif self.direction == "diagonal up":
             return square.x - l.x == l.y - square.y
         elif self.direction == "diagonal down":
