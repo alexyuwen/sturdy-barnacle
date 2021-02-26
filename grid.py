@@ -34,12 +34,12 @@ class Grid():
         thickness = 2
         crossMargin = self.cellSize // 5
         for xp, yp in self.shapes[0]:
-            center = (xp + self.cellSize / 2, yp + self.cellSize / 2)
+            center = (xp + self.cellSize // 2, yp + self.cellSize // 2)
             pygame.draw.line(self.surface, RED, (xp + crossMargin, yp + crossMargin), (xp + self.cellSize - crossMargin, yp + self.cellSize - crossMargin), thickness) # downward diagonal
             pygame.draw.line(self.surface, RED, (xp + self.cellSize - crossMargin, yp + crossMargin), (xp + crossMargin, yp + self.cellSize - crossMargin), thickness) # upward diagonal
         radius = self.cellSize // 3
         for xp, yp in self.shapes[1]:
-            center = (xp + self.cellSize / 2, yp + self.cellSize / 2)
+            center = (xp + self.cellSize // 2, yp + self.cellSize // 2)
             pygame.draw.circle(self.surface, BLUE, center, radius, thickness)
 
     def printGrid(self):

@@ -86,7 +86,7 @@ while True:
                         x = (pos[0] - grid.marginSize) // grid.cellSize
                         y = (pos[1] - grid.marginSize) // grid.cellSize
                         square = grid.grid[x][y]
-                        if not square.isFilled:
+                        if not square.isFilled: # if player clicked an empty square
                             coord = (x * grid.cellSize + grid.marginSize, y * grid.cellSize + grid.marginSize)
                             grid.shapes[whoseTurn - 1].add(coord)
                             square.isFilled = whoseTurn

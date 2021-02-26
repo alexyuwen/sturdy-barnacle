@@ -3,6 +3,9 @@ from grid import *
 from collections import deque
 import re
 import pdb
+"""
+implements Player, Play, and Pivot(Play) classes
+"""
 
 class Player():
 
@@ -81,7 +84,8 @@ class Player():
 
     def update(self, square):
         """
-        updates and sorts the list of plays
+        updates and sorts the list of plays (self.plays)
+        TODO: Find strength 0 plays when list of plays is empty
         """
         self.plays = [p for p in self.plays if not p.contains(square)]
         states = self.getStates(square)
@@ -89,8 +93,8 @@ class Player():
         for state in states:
             plays = self.possible_plays(state)
             self.plays.extend(plays)
-        self.merge_pivots()
-        self.sort_plays()
+        self.merge_pivots() # find and merge plays which share the same square (play)
+        self.sort_plays() # sort plays in order of decreasing strength
 
     def merge_pivots(self): # Do I need to handle pivots of 3+ lines?
         temp = {}
@@ -116,6 +120,12 @@ class Play():
         self.direction = self.__getDirection()
 
     def __getDirection(self):
+        """
+        horizontal: left to right
+        vertical: bottom to top (Remember that the y-axis is inverted)
+        diagonal up: left to right
+        diagonal down: left to right
+        """
         if self.line[0].y == self.line[1].y:
             return "horizontal"
         elif self.line[0].x == self.line[1].x:
@@ -127,7 +137,7 @@ class Play():
 
     def contains(self, square):
         l, r = self.line
-        # 1 extra square in each direction checked
+        # 1 extra square checked on both ends
         if self.direction == "horizontal":
             return l.x - 1 <= square.x <= r.x + 1 and square.y == l.y
         elif self.direction == "vertical":
