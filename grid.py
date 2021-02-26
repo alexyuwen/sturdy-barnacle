@@ -11,6 +11,10 @@ ORANGE = (255, 128, 0)
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 720
 
+"""
+implements Grid and Square classes
+"""
+
 class Grid():
     def __init__(self, surface, cellSize, marginSize):
         self.surface = surface
@@ -43,7 +47,7 @@ class Grid():
             pygame.draw.circle(self.surface, BLUE, center, radius, thickness)
 
     def printGrid(self):
-        print('\n'.join([''.join([f"{self.grid[x][y].isFilled:4}" for x in range(self.colNb)]) for y in range(self.rowNb)]))
+        print('\n'.join([''.join([f"{self.grid[x][y].isFilled:3}" for x in range(self.colNb)]) for y in range(self.rowNb)]))
 
 class Square():
     def __init__(self, grid, x, y): # x and y are the column and row numbers, not the exact coordinates

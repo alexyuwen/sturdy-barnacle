@@ -45,7 +45,10 @@ def gameOverScreen(screen):
 hasGameStarted = False
 isGameOver = False
 
-while True:
+singlePlayer = True
+twoPlayer = False
+
+while twoPlayer:
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     grid = Grid(surface=screen, cellSize=30, marginSize=20)
@@ -86,7 +89,7 @@ while True:
                         x = (pos[0] - grid.marginSize) // grid.cellSize
                         y = (pos[1] - grid.marginSize) // grid.cellSize
                         square = grid.grid[x][y]
-                        if not square.isFilled: # if player clicked an empty square
+                        if square.isFilled == 0: # if player clicked an empty square
                             coord = (x * grid.cellSize + grid.marginSize, y * grid.cellSize + grid.marginSize)
                             grid.shapes[whoseTurn - 1].add(coord)
                             square.isFilled = whoseTurn
@@ -98,6 +101,97 @@ while True:
                                     player.plays[0].printPlay()
                                     isGameOver = True
                                     break
+                            print()
+                            whoseTurn = (whoseTurn % numPlayers) + 1
+                # FOR DEBUGGING
+                if event.type == KEYDOWN:
+                    if event.key == K_p:
+                        comp.print_plays()
+                    if event.key == K_g:
+                        grid.printGrid()
+
+            screen.fill(WHITE)
+            grid.draw()
+
+
+while singlePlayer:
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    grid = Grid(surface=screen, cellSize=30, marginSize=20)
+    numPlayers = 2
+    computerTurn = 2
+    whoseTurn = 2 # computer goes first
+    isFirstMove = True
+    comp = Computer(grid, numPlayers, numPlayers)
+    strategy = comp.strategy
+    inSameGame = True
+    while inSameGame:
+        pygame.display.flip()
+        event_list = pygame.event.get()
+        for event in event_list:
+            if (event.type == KEYDOWN and event.key == K_ESCAPE) or event.type == QUIT:
+                grid.printGrid()
+                pygame.quit()
+                exit()
+        if not hasGameStarted:
+            home_screen()
+            for event in event_list:
+                if event.type == KEYDOWN:
+                    hasGameStarted = True
+        elif isGameOver:
+            gameOverScreen(screen)
+            for event in event_list:
+                if event.type == KEYDOWN:
+                    if event.key == K_SPACE:
+                        isGameOver = False
+                        inSameGame = False
+                    elif event.key == K_h:
+                        hasGameStarted = False
+                        isGameOver = False
+                        inSameGame = False
+        elif whoseTurn == computerTurn: # NEEDS TO FIRST CHECK IF OPPONENT HAS PLAY OF STRENGTH 4+ !!!
+            if isFirstMove:
+                best_move = grid.grid[grid.colNb // 2 - 1][grid.rowNb // 2 - 1]
+                isFirstMove = False
+            else:
+                best_move = strategy[1].plays[0].play # returns a Square, given that list of plays is non-empty
+            x, y = best_move.x, best_move.y
+            square = grid.grid[x][y]
+            coord = (x * grid.cellSize + grid.marginSize, y * grid.cellSize + grid.marginSize)
+            grid.shapes[whoseTurn - 1].add(coord)
+            square.isFilled = whoseTurn
+            for player in strategy:
+                print(["".join(str(sq.isFilled) for sq in state) for state in player.getStates(square)], end="\n") # DEBUGGING LINE
+                player.update(square)
+                if player.plays and player.plays[0].strength == 7:
+                    print("GAME OVER: ", end="")
+                    player.plays[0].printPlay()
+                    isGameOver = True
+                    break
+                player.print_plays()
+            print()
+            whoseTurn = (whoseTurn % numPlayers) + 1
+        else:
+            for event in event_list:
+                if event.type == MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    if grid.marginSize < pos[0] < grid.rightBound and grid.marginSize < pos[1] < grid.bottomBound:
+                        x = (pos[0] - grid.marginSize) // grid.cellSize
+                        y = (pos[1] - grid.marginSize) // grid.cellSize
+                        square = grid.grid[x][y]
+                        if square.isFilled == 0: # if player clicked an empty square
+                            coord = (x * grid.cellSize + grid.marginSize, y * grid.cellSize + grid.marginSize)
+                            grid.shapes[whoseTurn - 1].add(coord)
+                            square.isFilled = whoseTurn
+                            for player in strategy:
+                                print(["".join(str(sq.isFilled) for sq in state) for state in player.getStates(square)], end="\n") # DEBUGGING LINE
+                                player.update(square)
+                                if player.plays and player.plays[0].strength == 7:
+                                    print("GAME OVER: ", end="")
+                                    player.plays[0].printPlay()
+                                    isGameOver = True
+                                    break
+                                player.print_plays()
                             print()
                             whoseTurn = (whoseTurn % numPlayers) + 1
                 # FOR DEBUGGING

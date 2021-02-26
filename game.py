@@ -22,7 +22,9 @@ class Player():
                                    (fr'00{pN}{{3}}[^0{pN}]', 1, 0, -1), (fr'0{pN}0{pN}{pN}[^0{pN}]', 2, 0, -1), (fr'{pN}00{pN}{pN}[^0{pN}]', 2, 0, -1), (fr'{pN}0{pN}0{pN}[^0{pN}]', 3, 0, -1), (fr'{pN}0{pN}0{pN}[^0{pN}]', 1, 0, -1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 3, 0, -1), (fr'0{pN}{pN}0{pN}[^0{pN}]', 0, 0, -1),
                                    (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 5, 1, -1), (fr'[^0{pN}]0{pN}{{3}}0[^0{pN}]', 1, 1, -1)],
                        "semiopen2": [(fr'0{pN}0{pN}0', 2, 0, 0), (fr'0{pN}00{pN}0', 2, 1, 0)],
-                       "open2": [(fr'0{pN}{pN}00', 3, 0, 0), (fr'00{pN}{pN}0', 1, 0, 0)],} # Dict[str, List[(str, int)]]
+                       "open2": [(fr'0{pN}{pN}00', 3, 0, 0), (fr'00{pN}{pN}0', 1, 0, 0)],
+                       "remaining": [(fr'{pN}0{{4}}', 1, 0, 0), (fr'0{pN}0{{3}}', 2, 0, 0), (fr'00{pN}00', 1, 0, 0), (fr'0{{3}}{pN}0', 2, 0, 0), (fr'0{{4}}{pN}', 3, 0, 0), ],
+                       } # Dict[str, List[(str, int, int, int)]]
 
     def sort_plays(self):
         self.plays.sort(key=lambda p : p.strength, reverse=True)
@@ -67,12 +69,14 @@ class Player():
         state_as_str = "".join(str(sq.isFilled) for sq in state)
         strength = 7
         for combos in self.combos.values():
-            for reg, i, l, r in combos: # i is the index of the play, l is the index of the first square in the line, and r is a negative index of the first square after the line's end
+            if strength == 0 and plays:
+                return plays
+            for reg, i, l, r in combos: # i is the index of the play, l is the index of the first square in the line, and r is a negative index of the first square after the line's end (0 if last square is the end)
                 for match in re.finditer(reg, state_as_str):
                     start, end = match.start(0), match.end(0)
                     play = Play(state[start + i], (state[start+l], state[end-1+r]), strength)
                     if not any(play.isEqual(p) for p in self.plays):
-                        #DEBUGGING CODE
+                        # DEBUGGING CODE
                         l1, l2 = [sq.pos for sq in (state[start+l], state[end-1+r])]
                         if l1[0] - l2[0] not in (-4, 4) and l1[1] - l2[1] not in (-4, 4):
                             pdb.set_trace()
@@ -80,6 +84,7 @@ class Player():
                             pdb.set_trace()
                         plays.append(play)
             strength -= 1
+
         return plays
 
     def update(self, square):
@@ -114,7 +119,7 @@ class Player():
 
 class Play():
     def __init__(self, play, line, strength):
-        self.play = play
+        self.play = play # square
         self.line = line # tuple of 2 Squares - the beginning and end of the line, inclusive
         self.strength = strength
         self.direction = self.__getDirection()
