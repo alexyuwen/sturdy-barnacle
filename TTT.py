@@ -51,7 +51,7 @@ twoPlayer = False
 while twoPlayer:
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    grid = Grid(surface=screen, cellSize=30, marginSize=20)
+    grid = Grid(surface=screen, cellSize=50, marginSize=20)
     numPlayers = 2
     whoseTurn = 1
     comp = Computer(grid, numPlayers, numPlayers)
@@ -117,7 +117,7 @@ while twoPlayer:
 while singlePlayer:
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    grid = Grid(surface=screen, cellSize=30, marginSize=20)
+    grid = Grid(surface=screen, cellSize=40, marginSize=20)
     numPlayers = 2
     computerTurn = 2
     whoseTurn = 2 # computer goes first
@@ -149,12 +149,23 @@ while singlePlayer:
                         hasGameStarted = False
                         isGameOver = False
                         inSameGame = False
-        elif whoseTurn == computerTurn: # NEEDS TO FIRST CHECK IF OPPONENT HAS PLAY OF STRENGTH 4+ !!!
+        elif whoseTurn == computerTurn:
             if isFirstMove:
                 best_move = grid.grid[grid.colNb // 2 - 1][grid.rowNb // 2 - 1]
                 isFirstMove = False
-            else:
-                best_move = strategy[1].plays[0].play # returns a Square, given that list of plays is non-empty
+            else: # checks for imminent attacks; if there are none, then it finds a move
+            # TODO: MAKE MORE AGGRESIVE. IF COMPUTER HAS ATTACK THAT IS EVEN STRONGER THAN THE STRONGEST THREAT, THEN IT SHOULD PLAY IT.
+                strongestThreatStrength = 0
+                for player in strategy[:computerTurn-1] + strategy[computerTurn:]: # check all other players other than computer
+                    play = player.plays[0]
+                    if play.strength > strongestThreatStrength:
+                        strongestThreat = play
+                        strongestThreatStrength = play.strength
+                if strongestThreatStrength >= 4:
+                    best_move = play.play
+                else:
+                    best_move = strategy[computerTurn-1].plays[0].play # returns a Square, given that list of plays is non-empty
+
             x, y = best_move.x, best_move.y
             square = grid.grid[x][y]
             coord = (x * grid.cellSize + grid.marginSize, y * grid.cellSize + grid.marginSize)

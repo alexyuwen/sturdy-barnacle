@@ -26,9 +26,6 @@ class Player():
                        "remaining": [(fr'{pN}0{{4}}', 1, 0, 0), (fr'0{pN}0{{3}}', 2, 0, 0), (fr'00{pN}00', 1, 0, 0), (fr'0{{3}}{pN}0', 2, 0, 0), (fr'0{{4}}{pN}', 3, 0, 0), ],
                        } # Dict[str, List[(str, int, int, int)]]
 
-    def sort_plays(self):
-        self.plays.sort(key=lambda p : p.strength, reverse=True)
-
     def getStates(self, square):
         """
         returns list of 4 lists representing the states in all 4 directions around a given square
@@ -92,7 +89,7 @@ class Player():
         updates and sorts the list of plays (self.plays)
         TODO: Find strength 0 plays when list of plays is empty
         """
-        self.plays = [p for p in self.plays if not p.contains(square)]
+        self.plays = [p for p in self.plays if not p.contains(square)] # remove plays containing most recently played square (so they can be re-evaluated)
         states = self.getStates(square)
         state_as_str = ["".join(str(sq.isFilled) for sq in state) for state in states]
         for state in states:
@@ -111,6 +108,11 @@ class Player():
             else:
                 temp[p.play] = i, p.direction
 
+    def sort_plays(self): # sorts list of Plays in decreasing order of strength
+        self.plays.sort(key=lambda p : p.strength, reverse=True)
+        if self.plays and self.plays[0].strength > 0:
+            self.plays = [play for play in self.plays if play.strength > 0] # remove strength 0 plays from list
+
     def print_plays(self):
         print(f"Player {self.pN}'s Plays:")
         for p in self.plays:
@@ -122,9 +124,9 @@ class Play():
         self.play = play # square
         self.line = line # tuple of 2 Squares - the beginning and end of the line, inclusive
         self.strength = strength
-        self.direction = self.__getDirection()
+        self.direction = self.getDirection()
 
-    def __getDirection(self):
+    def getDirection(self): # name mangling
         """
         horizontal: left to right
         vertical: bottom to top (Remember that the y-axis is inverted)
@@ -162,6 +164,18 @@ class Pivot(Play):
     def __init__(self, play, line, line2, strength):
         super().__init__(play, line, 6)
         self.line2 = line2
+
+    # overrides parent function
+    def contains(self, square):
+        for line in [self.line, self.line2]:
+            l, r = line
+            # 1 extra square checked on both ends
+            if ((self.direction == "horizontal" and l.x - 1 <= square.x <= r.x + 1 and square.y == l.y) or
+                (self.direction == "vertical" and l.y + 1 >= square.y >= r.x - 1 and square.x == l.x) or
+                (self.direction == "diagonal up" and square.x - l.x == l.y - square.y) or
+                (self.direction == "diagonal down" and square.x - l.x == square.y - l.y)):
+                return True
+        return False
 
     def next_move(self):
         pass
